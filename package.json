@@ -1,0 +1,13 @@
+{
+  "name": "bgc-internship",
+  "packageManager": "yarn@1.22.21",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.461.0",
+    "@aws-sdk/credential-provider-ini": "^3.460.0",
+    "@aws-sdk/util-dynamodb": "^3.461.0",
+    "dotenv": "^16.3.1",
+    "puppeteer": "^21.5.2",
+    "serverless-iam-roles-per-function": "^3.2.0"
+  }
+}
