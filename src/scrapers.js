@@ -93,19 +93,18 @@ async function getBooks() {
         const batchWriteResult = await clientLocal.send(new BatchWriteItemCommand(params));
 
         response.body = JSON.stringify({
-            message: "Web scrapping successful - books.",
+            message: 'Web scrapping successful - books.',
         });
 
-        return response;
     } catch (error) {
         response.statusCode = 500;
         response.body = JSON.stringify({
-            message: "Failed to scrap books.",
+            message: 'Failed to scrap books.',
             errorMsg: error.message,
             errorStack: error.stack,
         })
-
-        return response
+    } finally {
+        return response;
     }
 };
 
@@ -120,11 +119,10 @@ async function getGeneral(category) {
         const page = await browser.newPage();
 
         // Replace the URL with the website you want to scrape
-        const url = `https://amazon.com.br/bestsellers/${category}`;
+        const url = `${process.env.URL}/${category}`;
         await page.goto(url);
 
-        // Wait for the page to load (you might need to adjust the waiting time)
-        await page.waitForTimeout(2000);
+        new Promise(r => setTimeout(r, 2000));
 
         const structuredData = await page.$$eval('div#gridItemRoot > div > div > div:nth-child(2) > div', (elements, category) => {
             function uuidv4() {
@@ -190,19 +188,18 @@ async function getGeneral(category) {
         const createResult = await client.send(new BatchWriteItemCommand(params));
 
         response.body = JSON.stringify({
-            message: `Web scrapping successful - ${category}.`,
+            message: `Web scraping successful - ${category}.`,
         });
 
-        return response;
-    } catch (e) {
+    } catch (error) {
         response.statusCode = 500;
         response.body = JSON.stringify({
             message: `Failed to scrap ${category}.`,
-            errorMsg: e.message,
-            errorStack: e.stack,
+            errorMsg: error.message,
+            errorStack: error.stack,
         })
-
-        return response
+    } finally {
+        return response;
     }
 };
 
