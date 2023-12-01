@@ -44,7 +44,7 @@ const getData = async (event) => {
             ExpressionAttributeValues: Object.keys(expressionAttributeValues).length > 0 ? expressionAttributeValues : undefined,
         };
 
-        const { Items } = await clientRunAWS.send(new ScanCommand(scanParams));
+        const { Items } = await clientRemote.send(new ScanCommand(scanParams));
 
         response.body = JSON.stringify({
             message: 'Successfully retrieved items.',
