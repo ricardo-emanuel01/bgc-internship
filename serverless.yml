@@ -16,7 +16,7 @@ plugins:
 
 functions:
   getData:
-    handler: src.api.getData
+    handler: src/api.getData
     name: get-all-items
     memorySize: 128
     timeout: 5
