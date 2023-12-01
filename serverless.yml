@@ -1,0 +1,63 @@
+service: dynamodb-bestsellers-amazon
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  region: sa-east-1
+  environment:
+    DYNAMODB_TABLE_NAME: ${self:custom.itemsTableName}
+
+custom:
+  itemsTableName: items-table-${self:provider.stage}
+
+plugins:
+  - serverless-iam-roles-per-function
+
+functions:
+  getData:
+    handler: src.api.getData
+    name: get-all-items
+    memorySize: 128
+    timeout: 5
+    events:
+      - http:
+          path: items
+          method: GET
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:Scan"
+        Resource: !GetAtt ItemsTable.Arn
+
+resources:
+  Resources:
+    ItemsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.itemsTableName}
+        AttributeDefinitions:
+          - AttributeName: itemId
+            AttributeType: S
+          - AttributeName: dateOfInsertion
+            AttributeType: S
+          - AttributeName: category
+            AttributeType: S
+        KeySchema:
+          - AttributeName: itemId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        GlobalSecondaryIndexes:
+          - IndexName: Category
+            KeySchema:
+              - AttributeName: category
+                KeyType: HASH
+              - AttributeName: dateOfInsertion
+                KeyType: RANGE
+            Projection:
+              ProjectionType: 'ALL'
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
