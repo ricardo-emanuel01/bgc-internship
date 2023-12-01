@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 const { clientRemote } = require('./db');
 const { ScanCommand } = require('@aws-sdk/client-dynamodb');
 const { unmarshall } = require('@aws-sdk/util-dynamodb');
@@ -38,7 +36,7 @@ const getData = async (event) => {
 
         // Set the parameters to execute the Scan
         const scanParams = {
-            TableName: `${process.env.TABLE_NAME}-dev`,
+            TableName: 'items-table-dev',
             // Ternary operators for simplicity
             FilterExpression: filterExpressionParts.length > 0 ? filterExpressionParts.join(' AND ') : undefined,
             ExpressionAttributeValues: Object.keys(expressionAttributeValues).length > 0 ? expressionAttributeValues : undefined,
