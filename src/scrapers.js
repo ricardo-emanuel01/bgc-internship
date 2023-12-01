@@ -82,7 +82,7 @@ async function getBooks() {
         await browser.close();
 
         // Put every element of structuredData inside toWrite
-        const toWrite = Array.from(structuredData);
+        const toWrite = Array.from(items);
 
         const params = {
             RequestItems: {
@@ -124,7 +124,7 @@ async function getGeneral(category) {
 
         new Promise(r => setTimeout(r, 2000));
 
-        const structuredData = await page.$$eval('div#gridItemRoot > div > div > div:nth-child(2) > div', (elements, category) => {
+        const items = await page.$$eval('div#gridItemRoot > div > div > div:nth-child(2) > div', (elements, category) => {
             function uuidv4() {
                 return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
                     var r = (Math.random() * 16) | 0,
@@ -177,7 +177,7 @@ async function getGeneral(category) {
         await browser.close();
         
         // Put every element of structuredData inside toWrite
-        const toWrite = Array.from(structuredData);
+        const toWrite = Array.from(items);
 
         const params = {
             RequestItems: {
@@ -185,7 +185,7 @@ async function getGeneral(category) {
             },
         };
 
-        const createResult = await client.send(new BatchWriteItemCommand(params));
+        const createResult = await clientLocal.send(new BatchWriteItemCommand(params));
 
         response.body = JSON.stringify({
             message: `Web scraping successful - ${category}.`,
