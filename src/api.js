@@ -48,7 +48,7 @@ const getData = async (event) => {
             message: 'Successfully retrieved items.',
             data: Items.map((item) => unmarshall(item)),
         });
-
+        
     } catch (error) {
         response.statusCode = 500;
         response.body = JSON.stringify({
@@ -56,8 +56,12 @@ const getData = async (event) => {
             errorMsg: error.message,
             errorStack: error.stack,
         });
-
+        
     } finally {
+        response.headers = {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true,
+        };
         return response;
     }
 };
