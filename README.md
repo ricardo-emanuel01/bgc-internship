@@ -46,14 +46,14 @@ Como o [AWS DynamoDB](https://docs.aws.amazon.com/dynamodb/) é um banco de dado
 
 - ***itemId:*** Será um *Universally Unique Identifier* (UUID) representado por uma **String** (42 bytes)
 - ***title:*** Será uma **String** com o título do produto no site (75 bytes em média)
-- ***price:*** Será um **Number** com o preço do produto armazenado como um número inteiro para evitar possíveis inconsistências, portanto sempre deverá ser usado tendo em mente que ele contém duas casas decimais (Difícil saber quantos bytes consome mas de acordo com alguns artigos uma boa aproximação pode ser 10 bytes)
+- ***price:*** Será um **Number** com o preço do produto armazenado como um número inteiro para evitar possíveis inconsistências, portanto sempre deverá ser usado tendo em mente que ele contém duas casas decimais (Difícil saber quantos bytes consome mas de acordo com alguns artigos uma boa aproximação pode ser 10 bytes no máximo)
 - ***dateOfInsertion:*** Será uma **String** contendo o dia em que os produtos representam os mais vendidos no format **AAAA-MM-DD** (25 bytes)
 - ***category:*** Será uma **String** com o nome da categoria do produto que poderá ser *books, electronics, videogames* ou *computers* (no máximo 19 bytes)
 - ***rankingMarket:*** Será uma **String** contendo a posição no ranking do produto (14 bytes)
 
 E os livros conterão, além dos campos descritos acima o campo *author* que terá em média *26 bytes*.
 
-É complicado prever o espaço consumido pelo tipo **Number** em uma tabela no DynamoDB por isso decidi utilizar **String** para representar o *rankingMarket* pois é necessário apenas 1 digito e portanto não atrapalha tarefas de ordenação o que aconteceria caso representasse o preço como uma **String**, pois ao ser ordenado lexicograficamente em ordem não decrescente, por exemplo, permitiria que valores monetários maiores aparecerem antes de valores menores, pelo fato de, dessa forma, "1234567" que representa R$12345,67 aparecer antes que "987" que representa R$9,87.  
+É complicado prever o espaço consumido pelo tipo **Number** em uma tabela no DynamoDB por isso decidi utilizar **String** para representar o *rankingMarket* pois é necessário apenas 1 digito e portanto não atrapalha tarefas de ordenação o que aconteceria caso representasse o preço como uma **String**, pois ao ser ordenado lexicograficamente em ordem não decrescente, por exemplo, permitiria que valores monetários maiores aparecessem antes de valores menores, pelo fato de, dessa forma, "1234567" que representa R$12345,67 aparecer antes que "987" que representa R$9,87.  
 Com isso podemos prever que em média serão incluídos no banco de dados cerca de **2298 bytes por dia**, desconsiderando o espaço ocupado por indexes.
 
 
@@ -63,15 +63,21 @@ Ter um script que obtenha os dados do site da Amazon com uma certa frequência e
 
 ### Script de scrapping
 
-Poderia ser uma *AWS Lambda Function* que é acionada por um evento periódico controlado pelo EventBridge ou então um script em uma máquina local que é acionado por um *cronjob*. Tendo em vista que um script de scrapping pode levar um tempo relativamente alto por utilizar navegadores headless e ter todo o overhead de abrir o navegador, executar a navegação e as respectivas queries e a cobrança em uma *AWS Lambda Function* acredito que seja mais simples e econômico utilizar *cronjob* para rodar o script de *scrapping*.
+Poderia ser uma *AWS Lambda Function* que é acionada por um evento periódico controlado pelo *AWS EventBridge* ou então um script em uma máquina local que é acionado por um *cronjob*. Tendo em vista que um script de scrapping pode levar um tempo relativamente alto por utilizar navegadores headless e ter todo o overhead de abrir o navegador, executar a navegação e as respectivas queries e a cobrança em uma *AWS Lambda Function* acredito que seja mais simples e econômico utilizar *cronjob* para rodar o script de *scrapping*.
 
 ### API para consulta dos dados
 
 É um endpoint que poderá conter parâmetros de *query* que serão usados para filtrar os dados da tabela, será possível utilizar 2 filtros, categoria e data de inserção, caso não seja passado nenhum dos dois parâmetros a API devolverá todos os items na tabela sem paginação, também é possível utilizar apenas um dos filtros por vez.
 
+## Resultado
+
+O endpoint da API, o modelo representacional de um item e da resposta da API para as requisições podem ser encontrados e testados através do [swagger](https://ricardo-emanuel01.github.io/bgc-internship-swagger).
+
 ## Melhorias em potencial
 
 - Refatoração do código quando estive mais experiente em JS
 - Implementar paginação nos resultados da API
-- Implementar algum tipo de restrição no acesso da API
-- Implementação de algum método para tratar o input de título dos produtos da amazon que as vezes podem ser pouco específicos
+- Implementar algum tipo de restrição no acesso à API
+- Implementar o tratamento do input de título dos produtos da amazon que as vezes podem ser pouco específicos
+- Implementação de endpoints para obtenção de insights sobre os itens, como verificar se um produto diminuiu ou aumentou de preço, criação de alertas de diferença de preço que poderão ser enviados por email e etc.
+- Diminuir o nome dos atributos da tabela para economizar espaço
