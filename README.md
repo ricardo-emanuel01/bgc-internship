@@ -90,6 +90,8 @@ Uma tabela no banco de dados com um índice secundário para habilitar *queries*
 
 O endpoint da API, o modelo representacional de um item e da resposta da API para as requisições podem ser encontrados e testados através do [swagger](https://ricardo-emanuel01.github.io/bgc-internship-swagger).
 
+- Exitem dados apenas do dia 30/11/2023 em diante
+
 ## Melhorias em potencial
 
 - Refatoração do código quando estive mais experiente em JS
