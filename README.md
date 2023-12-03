@@ -31,6 +31,10 @@ E para a categoria **livros** também escolhi obter o nome do autor que é uma i
 - [Games e Consoles](https://amazon.com.br/bestsellers/videogames)
 - [Livros](https://amazon.com.br/bestsellers/books)
 
+## Com que frequência o ranking é atualizado?
+
+Praticamente todas as repartições que fazem ranking de produtos no site da Amazon dizem com que frequência são atualizadas, por exemplo o ranking de produtos mais desejados e de produtos mais dados como presente dizem que se atualizam diariamente, porém o ranking de mais vendidos diz apenas que é "atualizado com frequência" e com uma pesquisa rápida é possível encontrar uma [página de atendimento ao cliente](https://www.amazon.com.br/gp/help/customer/display.html?nodeId=GGGMZK378RQPATDJ) que explica que esse ranking é atualizado de hora em hora e para fins de simplicidade pode ser conveniente verificar como ele foi na última hora do dia e considerar o ranking daquele momento para o dia todo.
+
 ## Esquema do banco de dados
 
 ### Informações relevantes sobre o levantamento feito abaixo
@@ -63,11 +67,24 @@ Ter um script que obtenha os dados do site da Amazon com uma certa frequência e
 
 ### Script de scrapping
 
-Poderia ser uma *AWS Lambda Function* que é acionada por um evento periódico controlado pelo *AWS EventBridge* ou então um script em uma máquina local que é acionado por um *cronjob*. Tendo em vista que um script de scrapping pode levar um tempo relativamente alto por utilizar navegadores headless e ter todo o overhead de abrir o navegador, executar a navegação e as respectivas queries e a cobrança em uma *AWS Lambda Function* acredito que seja mais simples e econômico utilizar *cronjob* para rodar o script de *scrapping*.
+Poderia ser uma *AWS Lambda Function* que é acionada por um evento periódico controlado pelo *AWS EventBridge* ou então um script em uma máquina local que é acionado por um *cronjob*. Tendo em vista que um script de scrapping pode levar um tempo relativamente alto por utilizar navegadores headless e ter todo o overhead de abrir o navegador, executar a navegação e as respectivas queries e a cobrança em uma *AWS Lambda Function* acredito que seja mais simples e econômico utilizar *cronjob* para rodar o script de *scrapping*.  
+Portanto defini uma tarefa no *cronjob* que é realizada todos os dias às 00:10h no horário de brasília que aciona o *script* de *scrapping* e atualiza a tabela no *DynamoDB* com os novos itens.
 
 ### API para consulta dos dados
 
 É um endpoint que poderá conter parâmetros de *query* que serão usados para filtrar os dados da tabela, será possível utilizar 2 filtros, categoria e data de inserção, caso não seja passado nenhum dos dois parâmetros a API devolverá todos os items na tabela sem paginação, também é possível utilizar apenas um dos filtros por vez.
+
+### Serverless framework para habilitar os serviços
+
+Como decidi que o *script* de *scrapping* irá rodar em minha máquina localmente precisei habilitar apenas uma função, responsável por ser o recurso do *endpoint* da API e uma tabela no *DynamoDB*, também configurei um índice secundário que ajudará nas *queries* feitas pela API na tabela de itens.
+
+#### AWS Lambda Function
+
+Uma função que será acionada quando houver um requisição *GET* no endpoint */items* da aplicação e que recebe a permissão de modificar a tabela mantida com as representações dos produtos.
+
+#### DynamoDB
+
+Uma tabela no banco de dados com um índice secundário para habilitar *queries* melhores e com capacidade mínima pois serve apenas para fins avaliativos.
 
 ## Resultado
 
